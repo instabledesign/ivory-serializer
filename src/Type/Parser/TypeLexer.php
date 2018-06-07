@@ -33,7 +33,7 @@ class TypeLexer extends AbstractLexer
     {
         return [
             '\'(?:[^\']|\'\')*\'',
-            '([a-z0-9\\\\]+)',
+            '[a-z0-9\\\\]+',
         ];
     }
 

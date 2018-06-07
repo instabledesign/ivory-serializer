@@ -45,6 +45,7 @@ class TypeParser implements TypeParserInterface
 
         $this->lexer->setInput($type);
         $this->walk();
+        $this->walk();
 
         try {
             return $this->parseType();
@@ -67,6 +68,7 @@ class TypeParser implements TypeParserInterface
     private function parseName()
     {
         $token = $this->validateToken(TypeLexer::T_NAME);
+        $this->walk();
 
         return $token['value'];
     }
@@ -93,6 +95,7 @@ class TypeParser implements TypeParserInterface
         }
 
         $this->validateToken(TypeLexer::T_GREATER_THAN);
+        $this->walk();
 
         return $options;
     }
@@ -102,9 +105,11 @@ class TypeParser implements TypeParserInterface
      */
     private function parseOptionName()
     {
+        $this->walk();
         $token = $this->lexer->token;
         $this->walk();
         $this->validateToken(TypeLexer::T_EQUAL);
+        $this->walk();
 
         return $token['value'];
     }
@@ -117,17 +122,12 @@ class TypeParser implements TypeParserInterface
         $token = $this->lexer->token;
 
         if ($token['type'] === TypeLexer::T_STRING) {
-            $result = $token['value'];
             $this->walk();
-        } else {
-            $result = $this->parseType();
+
+            return $token['value'];
         }
 
-        if ($this->lexer->token['type'] === TypeLexer::T_COMMA) {
-            $this->walk();
-        }
-
-        return $result;
+        return $this->parseType();
     }
 
     /**
@@ -147,25 +147,13 @@ class TypeParser implements TypeParserInterface
             ));
         }
 
-        $this->walk();
-
         return $token;
     }
 
-    /**
-     * @param int $count
-     *
-     * @return mixed[]
-     */
-    private function walk($count = 1)
+    private function walk()
     {
-        $token = $nextToken = $this->lexer->token;
+        $this->lexer->moveNext();
 
-        for ($i = 0; ($i < $count) || ($token === $nextToken); ++$i) {
-            $this->lexer->moveNext();
-            $nextToken = $this->lexer->token;
-        }
-
-        return $nextToken;
+        return $this->lexer->token;
     }
 }
